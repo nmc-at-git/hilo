@@ -8,7 +8,9 @@
 // line width, and draw style independently through the Sierra Chart study
 // settings dialog.
 
-#include "SierraChartACSIL.h"
+#include "sierrachart.h"
+
+SCDLLName("HiLo")
 
 SCSFExport scsf_HiLo(SCStudyInterfaceRef sc)
 {
