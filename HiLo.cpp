@@ -54,8 +54,8 @@ SCSFExport scsf_HiLo(SCStudyInterfaceRef sc)
     // sc.IndexOfLastVisibleBar, then compute extrema only over those bars.
     // Lines update whenever the user scrolls or zooms the chart.
     //
-    // sc.PersistVars->i1 / i2 remember the previous visible range so that
-    // only the previously-stamped bars need to be cleared on each update
+    // sc.GetPersistentInt/SetPersistentInt remember the previous visible range
+    // so that only the previously-stamped bars need to be cleared on each update
     // (avoids an O(n) clear of the entire bar history).
     //
     // Non-visible bars are set to 0 and hidden via DrawZeros = 0, so the
@@ -68,12 +68,13 @@ SCSFExport scsf_HiLo(SCStudyInterfaceRef sc)
         return;
 
     // Retrieve the previous visible range stored in persistent variables.
-    // sc.PersistVars is zero-initialized when the study loads; i3 acts as an
-    // "initialized" flag so the clear step is skipped on the very first call
+    // Key 1 = prevFirst, Key 2 = prevLast, Key 3 = validFlag.
+    // GetPersistentInt returns 0 when not yet set, so Key 3 acts as an
+    // "initialized" flag: the clear step is skipped on the very first call
     // (when no bars have been stamped yet).
-    int prevFirst      = sc.PersistVars->i1;
-    int prevLast       = sc.PersistVars->i2;
-    bool prevRangeValid = (sc.PersistVars->i3 == 1);
+    int prevFirst       = sc.GetPersistentInt(1);
+    int prevLast        = sc.GetPersistentInt(2);
+    bool prevRangeValid = (sc.GetPersistentInt(3) == 1);
 
     // Clamp persisted range to current array bounds in case the chart was
     // reloaded with fewer bars since the values were last written.
@@ -141,7 +142,7 @@ SCSFExport scsf_HiLo(SCStudyInterfaceRef sc)
     }
 
     // Persist the current visible range for the next call.
-    sc.PersistVars->i1 = firstVisible;
-    sc.PersistVars->i2 = lastVisible;
-    sc.PersistVars->i3 = 1;  // Mark range as valid for subsequent calls
+    sc.SetPersistentInt(1, firstVisible);
+    sc.SetPersistentInt(2, lastVisible);
+    sc.SetPersistentInt(3, 1);  // Mark range as valid for subsequent calls
 }
